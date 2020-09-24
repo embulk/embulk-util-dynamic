@@ -19,10 +19,13 @@ configurations {
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 dependencies {
     compileOnly "org.embulk:embulk-api:0.10.17"
+    compileOnly "org.embulk:embulk-spi:0.10.17"
+    compileOnly "org.embulk:embulk-core:0.10.17"
 
     testImplementation "org.embulk:embulk-api:0.10.17"
     testImplementation "org.junit.jupiter:junit-jupiter-api:5.6.1"
@@ -113,6 +116,10 @@ publishing {
                 }
 
                 developers {
+                    developer {
+                        name = "Sadayuki Furuhashi"
+                        email = "frsyuki@gmail.com"
+                    }
                     developer {
                         name = "Dai MIKURUBE"
                         email = "dmikurube@treasure-data.com"
