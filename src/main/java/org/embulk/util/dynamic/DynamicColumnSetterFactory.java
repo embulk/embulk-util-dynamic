@@ -27,6 +27,7 @@ import org.embulk.spi.type.LongType;
 import org.embulk.spi.type.StringType;
 import org.embulk.spi.type.TimestampType;
 import org.embulk.spi.type.Type;
+import org.embulk.util.timestamp.TimestampFormatter;
 
 class DynamicColumnSetterFactory {
     private DynamicColumnSetterFactory(
@@ -64,24 +65,25 @@ class DynamicColumnSetterFactory {
         } else if (type instanceof DoubleType) {
             return new DoubleColumnSetter(pageBuilder, column, this.defaultValueSetter);
         } else if (type instanceof StringType) {
-            final org.embulk.spi.time.TimestampFormatter formatter = org.embulk.spi.time.TimestampFormatter.of(
-                    getTimestampFormatForFormatter(column), getTimeZoneId(column));
+            final TimestampFormatter formatter = TimestampFormatter.builder(
+                    getTimestampFormatForFormatter(column), true).setDefaultZoneFromString(getTimeZoneId(column)).build();
             return new StringColumnSetter(pageBuilder, column, this.defaultValueSetter, formatter);
         } else if (type instanceof TimestampType) {
-            // TODO use flexible time format like Ruby's Time.parse
-            final org.embulk.spi.time.TimestampParser parser;
+            final TimestampFormatter parser;
             if (this.useColumnForTimestampMetadata) {
                 final TimestampType timestampType = (TimestampType) type;
-                // https://github.com/embulk/embulk/issues/935
-                parser = org.embulk.spi.time.TimestampParser.of(
-                        getFormatFromTimestampTypeWithDepracationSuppressed(timestampType), getTimeZoneId(column));
+                // TODO: Remove use of TimestampType's format. See: https://github.com/embulk/embulk/issues/935
+                parser = TimestampFormatter.builder(
+                        getFormatFromTimestampTypeWithDepracationSuppressed(timestampType), true).setDefaultZoneFromString(
+                                getTimeZoneId(column)).build();
             } else {
-                parser = org.embulk.spi.time.TimestampParser.of(getTimestampFormatForParser(column), getTimeZoneId(column));
+                parser = TimestampFormatter.builder(
+                        getTimestampFormatForParser(column), true).setDefaultZoneFromString(getTimeZoneId(column)).build();
             }
             return new TimestampColumnSetter(pageBuilder, column, this.defaultValueSetter, parser);
         } else if (type instanceof JsonType) {
-            final org.embulk.spi.time.TimestampFormatter formatter = org.embulk.spi.time.TimestampFormatter.of(
-                    getTimestampFormatForFormatter(column), getTimeZoneId(column));
+            final TimestampFormatter formatter = TimestampFormatter.builder(
+                    getTimestampFormatForFormatter(column), true).setDefaultZoneFromString(getTimeZoneId(column)).build();
             return new JsonColumnSetter(pageBuilder, column, this.defaultValueSetter, formatter);
         }
         throw new ConfigException("Unknown column type: " + type);

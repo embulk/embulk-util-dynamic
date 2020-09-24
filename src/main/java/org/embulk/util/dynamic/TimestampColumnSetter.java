@@ -19,15 +19,15 @@ package org.embulk.util.dynamic;
 import java.time.Instant;
 import org.embulk.spi.Column;
 import org.embulk.spi.PageBuilder;
+import org.embulk.util.timestamp.TimestampFormatter;
 import org.msgpack.value.Value;
 
 public class TimestampColumnSetter extends AbstractDynamicColumnSetter {
-    @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1298
     public TimestampColumnSetter(
             final PageBuilder pageBuilder,
             final Column column,
             final DefaultValueSetter defaultValueSetter,
-            final org.embulk.spi.time.TimestampParser timestampParser) {
+            final TimestampFormatter timestampParser) {
         super(pageBuilder, column, defaultValueSetter);
         this.timestampParser = timestampParser;
     }
@@ -45,7 +45,20 @@ public class TimestampColumnSetter extends AbstractDynamicColumnSetter {
     @Override
     @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1292
     public void set(final long v) {
-        this.pageBuilder.setTimestamp(this.column, org.embulk.spi.time.Timestamp.ofEpochSecond(v));
+        if (HAS_SET_TIMESTAMP_INSTANT) {
+            this.pageBuilder.setTimestamp(this.column, Instant.ofEpochSecond(v));
+        } else if (HAS_SET_TIMESTAMP_TIMESTAMP) {
+            // This embulk-util-dynamic is still to be used in plugins for Embulk v0.9.*,
+            // but PageBuilder.setTimestamp(Column, Instant) is added in recently v0.10.13.
+            // https://github.com/embulk/embulk/pull/1294
+            //
+            // TODO: Stop the reflection tweak, and always call PageBuilder#setTimestamp(Column, Instant) for Embulk 0.11+.
+            // https://github.com/embulk/embulk-util-dynamic/issues/5
+            this.pageBuilder.setTimestamp(this.column, org.embulk.spi.time.Timestamp.ofEpochSecond(v));
+        } else {
+            throw new IllegalStateException(
+                    "Neither PageBuilder#setTimestamp(Column, Instant) nor PageBuilder#setTimestamp(Column, Timestamp) found.");
+        }
     }
 
     @Override
@@ -53,23 +66,66 @@ public class TimestampColumnSetter extends AbstractDynamicColumnSetter {
     public void set(final double v) {
         final long sec = (long) v;
         final int nsec = (int) ((v - (double) sec) * 1000000000);
-        this.pageBuilder.setTimestamp(this.column, org.embulk.spi.time.Timestamp.ofEpochSecond(sec, nsec));
+
+        if (HAS_SET_TIMESTAMP_INSTANT) {
+            this.pageBuilder.setTimestamp(this.column, Instant.ofEpochSecond(sec, nsec));
+        } else if (HAS_SET_TIMESTAMP_TIMESTAMP) {
+            // This embulk-util-dynamic is still to be used in plugins for Embulk v0.9.*,
+            // but PageBuilder.setTimestamp(Column, Instant) is added in recently v0.10.13.
+            // https://github.com/embulk/embulk/pull/1294
+            //
+            // TODO: Stop the reflection tweak, and always call PageBuilder#setTimestamp(Column, Instant) for Embulk 0.11+.
+            // https://github.com/embulk/embulk-util-dynamic/issues/5
+            this.pageBuilder.setTimestamp(this.column, org.embulk.spi.time.Timestamp.ofEpochSecond(sec, nsec));
+        }
+
         this.defaultValueSetter.setTimestamp(this.pageBuilder, this.column);
     }
 
     @Override
     @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1298
     public void set(final String v) {
+        final Instant parsed;
         try {
-            this.pageBuilder.setTimestamp(this.column, this.timestampParser.parse(v));
+            parsed = this.timestampParser.parse(v);
         } catch (final org.embulk.spi.time.TimestampParseException ex) {
             this.defaultValueSetter.setTimestamp(this.pageBuilder, this.column);
+            return;
+        }
+
+        if (HAS_SET_TIMESTAMP_INSTANT) {
+            this.pageBuilder.setTimestamp(this.column, parsed);
+        } else if (HAS_SET_TIMESTAMP_TIMESTAMP) {
+            // This embulk-util-dynamic is still to be used in plugins for Embulk v0.9.*,
+            // but PageBuilder.setTimestamp(Column, Instant) is added in recently v0.10.13.
+            // https://github.com/embulk/embulk/pull/1294
+            //
+            // TODO: Stop the reflection tweak, and always call PageBuilder#setTimestamp(Column, Instant) for Embulk 0.11+.
+            // https://github.com/embulk/embulk-util-dynamic/issues/5
+            this.pageBuilder.setTimestamp(this.column, org.embulk.spi.time.Timestamp.ofInstant(parsed));
+        } else {
+            throw new IllegalStateException(
+                    "Neither PageBuilder#setTimestamp(Column, Instant) nor PageBuilder#setTimestamp(Column, Timestamp) found.");
         }
     }
 
     @Override
+    @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1292
     public void set(final Instant v) {
-        this.pageBuilder.setTimestamp(this.column, v);
+        if (HAS_SET_TIMESTAMP_INSTANT) {
+            this.pageBuilder.setTimestamp(this.column, v);
+        } else if (HAS_SET_TIMESTAMP_TIMESTAMP) {
+            // This embulk-util-dynamic is still to be used in plugins for Embulk v0.9.*,
+            // but PageBuilder.setTimestamp(Column, Instant) is added in recently v0.10.13.
+            // https://github.com/embulk/embulk/pull/1294
+            //
+            // TODO: Stop the reflection tweak, and always call PageBuilder#setTimestamp(Column, Instant) for Embulk 0.11+.
+            // https://github.com/embulk/embulk-util-dynamic/issues/5
+            this.pageBuilder.setTimestamp(this.column, org.embulk.spi.time.Timestamp.ofInstant(v));
+        } else {
+            throw new IllegalStateException(
+                    "Neither PageBuilder#setTimestamp(Column, Instant) nor PageBuilder#setTimestamp(Column, Timestamp) found.");
+        }
     }
 
     @Override
@@ -77,6 +133,28 @@ public class TimestampColumnSetter extends AbstractDynamicColumnSetter {
         this.defaultValueSetter.setTimestamp(this.pageBuilder, this.column);
     }
 
-    @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1298
-    private final org.embulk.spi.time.TimestampParser timestampParser;
+    @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1292
+    private static boolean hasSetTimestampTimestamp() {
+        try {
+            PageBuilder.class.getMethod("setTimestamp", Column.class, org.embulk.spi.time.Timestamp.class);
+        } catch (final NoSuchMethodException ex) {
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean hasSetTimestampInstant() {
+        try {
+            PageBuilder.class.getMethod("setTimestamp", Column.class, Instant.class);
+        } catch (final NoSuchMethodException ex) {
+            return false;
+        }
+        return true;
+    }
+
+    private static final boolean HAS_SET_TIMESTAMP_INSTANT = hasSetTimestampInstant();
+
+    private static final boolean HAS_SET_TIMESTAMP_TIMESTAMP = hasSetTimestampTimestamp();
+
+    private final TimestampFormatter timestampParser;
 }
