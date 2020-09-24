@@ -29,10 +29,6 @@ import org.embulk.spi.type.TimestampType;
 import org.embulk.spi.type.Type;
 
 class DynamicColumnSetterFactory {
-    private final DefaultValueSetter defaultValue;
-    private final DynamicPageBuilder.BuilderTask task;
-    private final boolean useColumnForTimestampMetadata;
-
     private DynamicColumnSetterFactory(
             final DynamicPageBuilder.BuilderTask task,
             final DefaultValueSetter defaultValue,
@@ -133,4 +129,8 @@ class DynamicColumnSetterFactory {
     private String getFormatFromTimestampTypeWithDepracationSuppressed(final TimestampType timestampType) {
         return timestampType.getFormat();
     }
+
+    private final DefaultValueSetter defaultValue;
+    private final DynamicPageBuilder.BuilderTask task;
+    private final boolean useColumnForTimestampMetadata;
 }

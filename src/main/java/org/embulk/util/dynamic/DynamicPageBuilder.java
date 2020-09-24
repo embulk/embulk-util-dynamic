@@ -33,10 +33,45 @@ import org.embulk.spi.Schema;
 import org.embulk.spi.time.TimeZoneIds;
 
 public class DynamicPageBuilder implements AutoCloseable {
-    private final PageBuilder pageBuilder;
-    private final Schema schema;
-    private final DynamicColumnSetter[] setters;
-    private final Map<String, DynamicColumnSetter> columnLookup;
+    private DynamicPageBuilder(
+            final DynamicColumnSetterFactory factory,
+            final BufferAllocator allocator,
+            final Schema schema,
+            final PageOutput output) {
+        this.pageBuilder = new PageBuilder(allocator, schema, output);
+        this.schema = schema;
+        ImmutableList.Builder<DynamicColumnSetter> setters = ImmutableList.builder();
+        ImmutableMap.Builder<String, DynamicColumnSetter> lookup = ImmutableMap.builder();
+        for (Column c : schema.getColumns()) {
+            DynamicColumnSetter setter = factory.newColumnSetter(pageBuilder, c);
+            setters.add(setter);
+            lookup.put(c.getName(), setter);
+        }
+        this.setters = setters.build().toArray(new DynamicColumnSetter[0]);
+        this.columnLookup = lookup.build();
+    }
+
+    public static DynamicPageBuilder createWithTimestampMetadataFromBuilderTask(
+            BuilderTask task,
+            BufferAllocator allocator,
+            Schema schema,
+            PageOutput output) {
+        // TODO configurable default value
+        DynamicColumnSetterFactory factory = DynamicColumnSetterFactory.createWithTimestampMetadataFromBuilderTask(
+                task, DynamicColumnSetterFactory.nullDefaultValue());
+        return new DynamicPageBuilder(factory, allocator, schema, output);
+    }
+
+    public static DynamicPageBuilder createWithTimestampMetadataFromColumn(
+            BuilderTask task,
+            BufferAllocator allocator,
+            Schema schema,
+            PageOutput output) {
+        // TODO configurable default value
+        DynamicColumnSetterFactory factory = DynamicColumnSetterFactory.createWithTimestampMetadataFromColumn(
+                task, DynamicColumnSetterFactory.nullDefaultValue());
+        return new DynamicPageBuilder(factory, allocator, schema, output);
+    }
 
     public static interface BuilderTask extends Task {
         @Config("default_timezone")
@@ -87,46 +122,6 @@ public class DynamicPageBuilder implements AutoCloseable {
                 return Optional.absent();
             }
         }
-    }
-
-    private DynamicPageBuilder(
-            final DynamicColumnSetterFactory factory,
-            final BufferAllocator allocator,
-            final Schema schema,
-            final PageOutput output) {
-        this.pageBuilder = new PageBuilder(allocator, schema, output);
-        this.schema = schema;
-        ImmutableList.Builder<DynamicColumnSetter> setters = ImmutableList.builder();
-        ImmutableMap.Builder<String, DynamicColumnSetter> lookup = ImmutableMap.builder();
-        for (Column c : schema.getColumns()) {
-            DynamicColumnSetter setter = factory.newColumnSetter(pageBuilder, c);
-            setters.add(setter);
-            lookup.put(c.getName(), setter);
-        }
-        this.setters = setters.build().toArray(new DynamicColumnSetter[0]);
-        this.columnLookup = lookup.build();
-    }
-
-    public static DynamicPageBuilder createWithTimestampMetadataFromBuilderTask(
-            BuilderTask task,
-            BufferAllocator allocator,
-            Schema schema,
-            PageOutput output) {
-        // TODO configurable default value
-        DynamicColumnSetterFactory factory = DynamicColumnSetterFactory.createWithTimestampMetadataFromBuilderTask(
-                task, DynamicColumnSetterFactory.nullDefaultValue());
-        return new DynamicPageBuilder(factory, allocator, schema, output);
-    }
-
-    public static DynamicPageBuilder createWithTimestampMetadataFromColumn(
-            BuilderTask task,
-            BufferAllocator allocator,
-            Schema schema,
-            PageOutput output) {
-        // TODO configurable default value
-        DynamicColumnSetterFactory factory = DynamicColumnSetterFactory.createWithTimestampMetadataFromColumn(
-                task, DynamicColumnSetterFactory.nullDefaultValue());
-        return new DynamicPageBuilder(factory, allocator, schema, output);
     }
 
     public List<Column> getColumns() {
@@ -196,4 +191,9 @@ public class DynamicPageBuilder implements AutoCloseable {
     public void close() {
         pageBuilder.close();
     }
+
+    private final PageBuilder pageBuilder;
+    private final Schema schema;
+    private final DynamicColumnSetter[] setters;
+    private final Map<String, DynamicColumnSetter> columnLookup;
 }

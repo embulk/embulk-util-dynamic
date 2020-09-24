@@ -20,14 +20,12 @@ import java.time.Instant;
 import org.msgpack.value.Value;
 
 public class SkipColumnSetter extends AbstractDynamicColumnSetter {
-    private static final SkipColumnSetter instance = new SkipColumnSetter();
+    private SkipColumnSetter() {
+        super(null, null, null);
+    }
 
     public static SkipColumnSetter get() {
         return instance;
-    }
-
-    private SkipColumnSetter() {
-        super(null, null, null);
     }
 
     @Override
@@ -54,4 +52,6 @@ public class SkipColumnSetter extends AbstractDynamicColumnSetter {
 
     @Override
     public void set(Value v) {}
+
+    private static final SkipColumnSetter instance = new SkipColumnSetter();
 }

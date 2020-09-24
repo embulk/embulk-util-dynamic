@@ -24,9 +24,6 @@ import org.msgpack.value.ValueFactory;
 
 public class JsonColumnSetter extends AbstractDynamicColumnSetter {
     @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1298
-    private final org.embulk.spi.time.TimestampFormatter timestampFormatter;
-
-    @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1298
     public JsonColumnSetter(PageBuilder pageBuilder, Column column,
                             DefaultValueSetter defaultValue,
                             org.embulk.spi.time.TimestampFormatter timestampFormatter) {
@@ -75,4 +72,7 @@ public class JsonColumnSetter extends AbstractDynamicColumnSetter {
     public void set(Value v) {
         pageBuilder.setJson(column, v);
     }
+
+    @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1298
+    private final org.embulk.spi.time.TimestampFormatter timestampFormatter;
 }

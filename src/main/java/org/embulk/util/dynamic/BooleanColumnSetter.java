@@ -23,14 +23,6 @@ import org.embulk.spi.PageBuilder;
 import org.msgpack.value.Value;
 
 public class BooleanColumnSetter extends AbstractDynamicColumnSetter {
-    private static final ImmutableSet<String> TRUE_STRINGS =
-            ImmutableSet.of(
-                    "true", "True", "TRUE",
-                    "yes", "Yes", "YES",
-                    "t", "T", "y", "Y",
-                    "on", "On",
-                    "ON", "1");
-
     public BooleanColumnSetter(PageBuilder pageBuilder, Column column,
             DefaultValueSetter defaultValue) {
         super(pageBuilder, column, defaultValue);
@@ -80,4 +72,12 @@ public class BooleanColumnSetter extends AbstractDynamicColumnSetter {
     public void set(Value v) {
         defaultValue.setBoolean(pageBuilder, column);
     }
+
+    private static final ImmutableSet<String> TRUE_STRINGS =
+            ImmutableSet.of(
+                    "true", "True", "TRUE",
+                    "yes", "Yes", "YES",
+                    "t", "T", "y", "Y",
+                    "on", "On",
+                    "ON", "1");
 }

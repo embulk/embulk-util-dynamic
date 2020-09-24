@@ -22,10 +22,6 @@ import org.embulk.spi.PageBuilder;
 import org.msgpack.value.Value;
 
 public abstract class AbstractDynamicColumnSetter implements DynamicColumnSetter {
-    protected final PageBuilder pageBuilder;
-    protected final Column column;
-    protected final DefaultValueSetter defaultValue;
-
     protected AbstractDynamicColumnSetter(PageBuilder pageBuilder, Column column,
             DefaultValueSetter defaultValue) {
         this.pageBuilder = pageBuilder;
@@ -54,4 +50,8 @@ public abstract class AbstractDynamicColumnSetter implements DynamicColumnSetter
     }
 
     public abstract void set(Value value);
+
+    protected final PageBuilder pageBuilder;
+    protected final Column column;
+    protected final DefaultValueSetter defaultValue;
 }
