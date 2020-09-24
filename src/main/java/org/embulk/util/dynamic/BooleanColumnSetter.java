@@ -60,12 +60,6 @@ public class BooleanColumnSetter extends AbstractDynamicColumnSetter {
     }
 
     @Override
-    @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1292
-    public void set(final org.embulk.spi.time.Timestamp v) {
-        this.defaultValueSetter.setBoolean(this.pageBuilder, this.column);
-    }
-
-    @Override
     public void set(final Instant v) {
         this.defaultValueSetter.setBoolean(this.pageBuilder, this.column);
     }

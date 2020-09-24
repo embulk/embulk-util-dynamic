@@ -73,12 +73,6 @@ public class LongColumnSetter extends AbstractDynamicColumnSetter {
     }
 
     @Override
-    @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1292
-    public void set(final org.embulk.spi.time.Timestamp v) {
-        this.pageBuilder.setLong(this.column, v.getEpochSecond());
-    }
-
-    @Override
     public void set(final Instant v) {
         this.pageBuilder.setLong(this.column, v.getEpochSecond());
     }

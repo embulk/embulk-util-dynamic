@@ -60,12 +60,6 @@ public class JsonColumnSetter extends AbstractDynamicColumnSetter {
 
     @Override
     @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1292
-    public void set(final org.embulk.spi.time.Timestamp v) {
-        this.pageBuilder.setJson(this.column, ValueFactory.newString(timestampFormatter.format(v)));
-    }
-
-    @Override
-    @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1292
     public void set(final Instant v) {
         this.pageBuilder.setJson(this.column, ValueFactory.newString(timestampFormatter.format(org.embulk.spi.time.Timestamp.ofInstant(v))));
     }

@@ -59,12 +59,6 @@ public class StringColumnSetter extends AbstractDynamicColumnSetter {
 
     @Override
     @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1292
-    public void set(final org.embulk.spi.time.Timestamp v) {
-        this.pageBuilder.setString(this.column, this.timestampFormatter.format(v));
-    }
-
-    @Override
-    @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1292
     public void set(final Instant v) {
         this.pageBuilder.setString(this.column, this.timestampFormatter.format(org.embulk.spi.time.Timestamp.ofInstant(v)));
     }
