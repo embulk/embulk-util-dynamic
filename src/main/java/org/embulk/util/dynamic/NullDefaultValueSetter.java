@@ -20,27 +20,33 @@ import org.embulk.spi.Column;
 import org.embulk.spi.PageBuilder;
 
 public class NullDefaultValueSetter implements DefaultValueSetter {
-    public void setBoolean(PageBuilder pageBuilder, Column c) {
+    @Override
+    public void setBoolean(final PageBuilder pageBuilder, final Column c) {
         pageBuilder.setNull(c);
     }
 
-    public void setLong(PageBuilder pageBuilder, Column c) {
+    @Override
+    public void setLong(final PageBuilder pageBuilder, final Column c) {
         pageBuilder.setNull(c);
     }
 
-    public void setDouble(PageBuilder pageBuilder, Column c) {
+    @Override
+    public void setDouble(final PageBuilder pageBuilder, final Column c) {
         pageBuilder.setNull(c);
     }
 
-    public void setString(PageBuilder pageBuilder, Column c) {
+    @Override
+    public void setString(final PageBuilder pageBuilder, final Column c) {
         pageBuilder.setNull(c);
     }
 
-    public void setTimestamp(PageBuilder pageBuilder, Column c) {
+    @Override
+    public void setTimestamp(final PageBuilder pageBuilder, final Column c) {
         pageBuilder.setNull(c);
     }
 
-    public void setJson(PageBuilder pageBuilder, Column c) {
+    @Override
+    public void setJson(final PageBuilder pageBuilder, final Column c) {
         pageBuilder.setNull(c);
     }
 }

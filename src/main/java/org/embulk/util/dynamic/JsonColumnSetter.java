@@ -24,53 +24,55 @@ import org.msgpack.value.ValueFactory;
 
 public class JsonColumnSetter extends AbstractDynamicColumnSetter {
     @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1298
-    public JsonColumnSetter(PageBuilder pageBuilder, Column column,
-                            DefaultValueSetter defaultValue,
-                            org.embulk.spi.time.TimestampFormatter timestampFormatter) {
-        super(pageBuilder, column, defaultValue);
+    public JsonColumnSetter(
+            final PageBuilder pageBuilder,
+            final Column column,
+            final DefaultValueSetter defaultValueSetter,
+            final org.embulk.spi.time.TimestampFormatter timestampFormatter) {
+        super(pageBuilder, column, defaultValueSetter);
         this.timestampFormatter = timestampFormatter;
     }
 
     @Override
     public void setNull() {
-        pageBuilder.setNull(column);
+        this.pageBuilder.setNull(this.column);
     }
 
     @Override
-    public void set(boolean v) {
-        pageBuilder.setJson(column, ValueFactory.newBoolean(v));
+    public void set(final boolean v) {
+        this.pageBuilder.setJson(this.column, ValueFactory.newBoolean(v));
     }
 
     @Override
-    public void set(long v) {
-        pageBuilder.setJson(column, ValueFactory.newInteger(v));
+    public void set(final long v) {
+        this.pageBuilder.setJson(this.column, ValueFactory.newInteger(v));
     }
 
     @Override
-    public void set(double v) {
-        pageBuilder.setJson(column, ValueFactory.newFloat(v));
+    public void set(final double v) {
+        this.pageBuilder.setJson(this.column, ValueFactory.newFloat(v));
     }
 
     @Override
-    public void set(String v) {
-        pageBuilder.setJson(column, ValueFactory.newString(v));
+    public void set(final String v) {
+        this.pageBuilder.setJson(this.column, ValueFactory.newString(v));
     }
 
     @Override
     @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1292
     public void set(final org.embulk.spi.time.Timestamp v) {
-        pageBuilder.setJson(column, ValueFactory.newString(timestampFormatter.format(v)));
+        this.pageBuilder.setJson(this.column, ValueFactory.newString(timestampFormatter.format(v)));
     }
 
     @Override
     @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1292
-    public void set(Instant v) {
-        pageBuilder.setJson(column, ValueFactory.newString(timestampFormatter.format(org.embulk.spi.time.Timestamp.ofInstant(v))));
+    public void set(final Instant v) {
+        this.pageBuilder.setJson(this.column, ValueFactory.newString(timestampFormatter.format(org.embulk.spi.time.Timestamp.ofInstant(v))));
     }
 
     @Override
-    public void set(Value v) {
-        pageBuilder.setJson(column, v);
+    public void set(final Value v) {
+        this.pageBuilder.setJson(this.column, v);
     }
 
     @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1298

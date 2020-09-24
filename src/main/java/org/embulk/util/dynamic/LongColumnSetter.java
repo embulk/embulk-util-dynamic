@@ -24,65 +24,67 @@ import org.embulk.spi.PageBuilder;
 import org.msgpack.value.Value;
 
 public class LongColumnSetter extends AbstractDynamicColumnSetter {
-    public LongColumnSetter(PageBuilder pageBuilder, Column column,
-            DefaultValueSetter defaultValue) {
-        super(pageBuilder, column, defaultValue);
+    public LongColumnSetter(
+            final PageBuilder pageBuilder,
+            final Column column,
+            final DefaultValueSetter defaultValueSetter) {
+        super(pageBuilder, column, defaultValueSetter);
     }
 
     @Override
     public void setNull() {
-        pageBuilder.setNull(column);
+        this.pageBuilder.setNull(this.column);
     }
 
     @Override
-    public void set(boolean v) {
-        pageBuilder.setLong(column, v ? 1L : 0L);
+    public void set(final boolean v) {
+        this.pageBuilder.setLong(this.column, v ? 1L : 0L);
     }
 
     @Override
-    public void set(long v) {
-        pageBuilder.setLong(column, v);
+    public void set(final long v) {
+        this.pageBuilder.setLong(this.column, v);
     }
 
     @Override
-    public void set(double v) {
-        long lv;
+    public void set(final double v) {
+        final long lv;
         try {
             // TODO configurable rounding mode
             lv = DoubleMath.roundToLong(v, RoundingMode.HALF_UP);
-        } catch (ArithmeticException ex) {
+        } catch (final ArithmeticException ex) {
             // NaN / Infinite / -Infinite
-            defaultValue.setLong(pageBuilder, column);
+            this.defaultValueSetter.setLong(this.pageBuilder, this.column);
             return;
         }
-        pageBuilder.setLong(column, lv);
+        this.pageBuilder.setLong(this.column, lv);
     }
 
     @Override
-    public void set(String v) {
-        long lv;
+    public void set(final String v) {
+        final long lv;
         try {
             lv = Long.parseLong(v);
-        } catch (NumberFormatException e) {
-            defaultValue.setLong(pageBuilder, column);
+        } catch (final NumberFormatException ex) {
+            this.defaultValueSetter.setLong(this.pageBuilder, this.column);
             return;
         }
-        pageBuilder.setLong(column, lv);
+        this.pageBuilder.setLong(this.column, lv);
     }
 
     @Override
     @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1292
     public void set(final org.embulk.spi.time.Timestamp v) {
-        pageBuilder.setLong(column, v.getEpochSecond());
+        this.pageBuilder.setLong(this.column, v.getEpochSecond());
     }
 
     @Override
-    public void set(Instant v) {
-        pageBuilder.setLong(column, v.getEpochSecond());
+    public void set(final Instant v) {
+        this.pageBuilder.setLong(this.column, v.getEpochSecond());
     }
 
     @Override
-    public void set(Value v) {
-        defaultValue.setLong(pageBuilder, column);
+    public void set(final Value v) {
+        this.defaultValueSetter.setLong(this.pageBuilder, this.column);
     }
 }

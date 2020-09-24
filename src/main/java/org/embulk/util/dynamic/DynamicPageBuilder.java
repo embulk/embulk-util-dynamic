@@ -40,10 +40,10 @@ public class DynamicPageBuilder implements AutoCloseable {
             final PageOutput output) {
         this.pageBuilder = new PageBuilder(allocator, schema, output);
         this.schema = schema;
-        ImmutableList.Builder<DynamicColumnSetter> setters = ImmutableList.builder();
-        ImmutableMap.Builder<String, DynamicColumnSetter> lookup = ImmutableMap.builder();
-        for (Column c : schema.getColumns()) {
-            DynamicColumnSetter setter = factory.newColumnSetter(pageBuilder, c);
+        final ImmutableList.Builder<DynamicColumnSetter> setters = ImmutableList.builder();
+        final ImmutableMap.Builder<String, DynamicColumnSetter> lookup = ImmutableMap.builder();
+        for (final Column c : schema.getColumns()) {
+            final DynamicColumnSetter setter = factory.newColumnSetter(this.pageBuilder, c);
             setters.add(setter);
             lookup.put(c.getName(), setter);
         }
@@ -52,24 +52,24 @@ public class DynamicPageBuilder implements AutoCloseable {
     }
 
     public static DynamicPageBuilder createWithTimestampMetadataFromBuilderTask(
-            BuilderTask task,
-            BufferAllocator allocator,
-            Schema schema,
-            PageOutput output) {
+            final BuilderTask task,
+            final BufferAllocator allocator,
+            final Schema schema,
+            final PageOutput output) {
         // TODO configurable default value
-        DynamicColumnSetterFactory factory = DynamicColumnSetterFactory.createWithTimestampMetadataFromBuilderTask(
-                task, DynamicColumnSetterFactory.nullDefaultValue());
+        final DynamicColumnSetterFactory factory = DynamicColumnSetterFactory.createWithTimestampMetadataFromBuilderTask(
+                task, DynamicColumnSetterFactory.nullDefaultValueSetter());
         return new DynamicPageBuilder(factory, allocator, schema, output);
     }
 
     public static DynamicPageBuilder createWithTimestampMetadataFromColumn(
-            BuilderTask task,
-            BufferAllocator allocator,
-            Schema schema,
-            PageOutput output) {
+            final BuilderTask task,
+            final BufferAllocator allocator,
+            final Schema schema,
+            final PageOutput output) {
         // TODO configurable default value
-        DynamicColumnSetterFactory factory = DynamicColumnSetterFactory.createWithTimestampMetadataFromColumn(
-                task, DynamicColumnSetterFactory.nullDefaultValue());
+        final DynamicColumnSetterFactory factory = DynamicColumnSetterFactory.createWithTimestampMetadataFromColumn(
+                task, DynamicColumnSetterFactory.nullDefaultValueSetter());
         return new DynamicPageBuilder(factory, allocator, schema, output);
     }
 
@@ -125,37 +125,37 @@ public class DynamicPageBuilder implements AutoCloseable {
     }
 
     public List<Column> getColumns() {
-        return schema.getColumns();
+        return this.schema.getColumns();
     }
 
-    public DynamicColumnSetter column(Column c) {
-        return setters[c.getIndex()];
+    public DynamicColumnSetter column(final Column c) {
+        return this.setters[c.getIndex()];
     }
 
-    public DynamicColumnSetter column(int index) {
-        if (index < 0 || setters.length <= index) {
+    public DynamicColumnSetter column(final int index) {
+        if (index < 0 || this.setters.length <= index) {
             throw new DynamicColumnNotFoundException("Column index '" + index + "' is not exist");
         }
-        return setters[index];
+        return this.setters[index];
     }
 
-    public DynamicColumnSetter lookupColumn(String columnName) {
-        DynamicColumnSetter setter = columnLookup.get(columnName);
+    public DynamicColumnSetter lookupColumn(final String columnName) {
+        final DynamicColumnSetter setter = this.columnLookup.get(columnName);
         if (setter == null) {
             throw new DynamicColumnNotFoundException("Column '" + columnName + "' is not exist");
         }
         return setter;
     }
 
-    public DynamicColumnSetter columnOrSkip(int index) {
-        if (index < 0 || setters.length <= index) {
+    public DynamicColumnSetter columnOrSkip(final int index) {
+        if (index < 0 || this.setters.length <= index) {
             return SkipColumnSetter.get();
         }
-        return setters[index];
+        return this.setters[index];
     }
 
-    public DynamicColumnSetter columnOrSkip(String columnName) {
-        DynamicColumnSetter setter = columnLookup.get(columnName);
+    public DynamicColumnSetter columnOrSkip(final String columnName) {
+        final DynamicColumnSetter setter = this.columnLookup.get(columnName);
         if (setter == null) {
             return SkipColumnSetter.get();
         }
@@ -163,33 +163,33 @@ public class DynamicPageBuilder implements AutoCloseable {
     }
 
     // for jruby
-    protected DynamicColumnSetter columnOrNull(int index) {
-        if (index < 0 || setters.length <= index) {
+    protected DynamicColumnSetter columnOrNull(final int index) {
+        if (index < 0 || this.setters.length <= index) {
             return null;
         }
-        return setters[index];
+        return this.setters[index];
     }
 
     // for jruby
-    protected DynamicColumnSetter columnOrNull(String columnName) {
-        return columnLookup.get(columnName);
+    protected DynamicColumnSetter columnOrNull(final String columnName) {
+        return this.columnLookup.get(columnName);
     }
 
     public void addRecord() {
-        pageBuilder.addRecord();
+        this.pageBuilder.addRecord();
     }
 
     public void flush() {
-        pageBuilder.flush();
+        this.pageBuilder.flush();
     }
 
     public void finish() {
-        pageBuilder.finish();
+        this.pageBuilder.finish();
     }
 
     @Override
     public void close() {
-        pageBuilder.close();
+        this.pageBuilder.close();
     }
 
     private final PageBuilder pageBuilder;

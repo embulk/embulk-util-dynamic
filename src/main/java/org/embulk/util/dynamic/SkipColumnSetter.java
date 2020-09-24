@@ -32,26 +32,26 @@ public class SkipColumnSetter extends AbstractDynamicColumnSetter {
     public void setNull() {}
 
     @Override
-    public void set(boolean v) {}
+    public void set(final boolean v) {}
 
     @Override
-    public void set(long v) {}
+    public void set(final long v) {}
 
     @Override
-    public void set(double v) {}
+    public void set(final double v) {}
 
     @Override
-    public void set(String v) {}
+    public void set(final String v) {}
 
     @Override
     @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1292
     public void set(final org.embulk.spi.time.Timestamp v) {}
 
     @Override
-    public void set(Instant v) {}
+    public void set(final Instant v) {}
 
     @Override
-    public void set(Value v) {}
+    public void set(final Value v) {}
 
     private static final SkipColumnSetter instance = new SkipColumnSetter();
 }

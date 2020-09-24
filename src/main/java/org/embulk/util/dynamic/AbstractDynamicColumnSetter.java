@@ -22,36 +22,45 @@ import org.embulk.spi.PageBuilder;
 import org.msgpack.value.Value;
 
 public abstract class AbstractDynamicColumnSetter implements DynamicColumnSetter {
-    protected AbstractDynamicColumnSetter(PageBuilder pageBuilder, Column column,
-            DefaultValueSetter defaultValue) {
+    protected AbstractDynamicColumnSetter(
+            final PageBuilder pageBuilder,
+            final Column column,
+            final DefaultValueSetter defaultValueSetter) {
         this.pageBuilder = pageBuilder;
         this.column = column;
-        this.defaultValue = defaultValue;
+        this.defaultValueSetter = defaultValueSetter;
     }
 
+    @Override
     public abstract void setNull();
 
+    @Override
     public abstract void set(boolean value);
 
+    @Override
     public abstract void set(long value);
 
+    @Override
     public abstract void set(double value);
 
+    @Override
     public abstract void set(String value);
 
     @Deprecated
+    @Override
     @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1292
     public abstract void set(org.embulk.spi.time.Timestamp value);
 
     @Override
     @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1292
-    public void set(Instant value) {
+    public void set(final Instant value) {
         this.set(org.embulk.spi.time.Timestamp.ofInstant(value));
     }
 
+    @Override
     public abstract void set(Value value);
 
     protected final PageBuilder pageBuilder;
     protected final Column column;
-    protected final DefaultValueSetter defaultValue;
+    protected final DefaultValueSetter defaultValueSetter;
 }
