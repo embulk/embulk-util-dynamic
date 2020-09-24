@@ -1,4 +1,4 @@
-package org.embulk.spi.util;
+package org.embulk.util.dynamic;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
@@ -15,7 +15,6 @@ import org.embulk.spi.PageBuilder;
 import org.embulk.spi.PageOutput;
 import org.embulk.spi.Schema;
 import org.embulk.spi.time.TimeZoneIds;
-import org.embulk.spi.util.dynamic.SkipColumnSetter;
 
 public class DynamicPageBuilder implements AutoCloseable {
     private final PageBuilder pageBuilder;

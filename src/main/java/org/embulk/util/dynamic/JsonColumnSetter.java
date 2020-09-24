@@ -1,4 +1,4 @@
-package org.embulk.spi.util.dynamic;
+package org.embulk.util.dynamic;
 
 import java.time.Instant;
 import org.embulk.spi.Column;

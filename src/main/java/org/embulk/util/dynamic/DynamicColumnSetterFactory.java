@@ -1,4 +1,4 @@
-package org.embulk.spi.util;
+package org.embulk.util.dynamic;
 
 import org.embulk.config.ConfigException;
 import org.embulk.config.ConfigSource;
@@ -11,14 +11,6 @@ import org.embulk.spi.type.LongType;
 import org.embulk.spi.type.StringType;
 import org.embulk.spi.type.TimestampType;
 import org.embulk.spi.type.Type;
-import org.embulk.spi.util.dynamic.BooleanColumnSetter;
-import org.embulk.spi.util.dynamic.DefaultValueSetter;
-import org.embulk.spi.util.dynamic.DoubleColumnSetter;
-import org.embulk.spi.util.dynamic.JsonColumnSetter;
-import org.embulk.spi.util.dynamic.LongColumnSetter;
-import org.embulk.spi.util.dynamic.NullDefaultValueSetter;
-import org.embulk.spi.util.dynamic.StringColumnSetter;
-import org.embulk.spi.util.dynamic.TimestampColumnSetter;
 
 class DynamicColumnSetterFactory {
     private final DefaultValueSetter defaultValue;
