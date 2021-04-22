@@ -16,8 +16,9 @@
 
 package org.embulk.util.dynamic;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.embulk.config.ConfigSource;
@@ -36,15 +37,15 @@ public class DynamicPageBuilder implements AutoCloseable {
             final PageOutput output) {
         this.pageBuilder = pageBuilder;
         this.schema = schema;
-        final ImmutableList.Builder<DynamicColumnSetter> setters = ImmutableList.builder();
-        final ImmutableMap.Builder<String, DynamicColumnSetter> lookup = ImmutableMap.builder();
+        final ArrayList<DynamicColumnSetter> setters = new ArrayList<>();
+        final LinkedHashMap<String, DynamicColumnSetter> lookup = new LinkedHashMap<>();
         for (final Column c : schema.getColumns()) {
             final DynamicColumnSetter setter = factory.newColumnSetter(this.pageBuilder, c);
             setters.add(setter);
             lookup.put(c.getName(), setter);
         }
-        this.setters = setters.build().toArray(new DynamicColumnSetter[0]);
-        this.columnLookup = lookup.build();
+        this.setters = setters.toArray(new DynamicColumnSetter[0]);
+        this.columnLookup = Collections.unmodifiableMap(lookup);
     }
 
     public static DynamicPageBuilder createWithTimestampMetadata(
