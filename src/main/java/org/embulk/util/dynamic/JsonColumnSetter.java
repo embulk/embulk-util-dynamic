@@ -19,16 +19,16 @@ package org.embulk.util.dynamic;
 import java.time.Instant;
 import org.embulk.spi.Column;
 import org.embulk.spi.PageBuilder;
+import org.embulk.util.timestamp.TimestampFormatter;
 import org.msgpack.value.Value;
 import org.msgpack.value.ValueFactory;
 
 public class JsonColumnSetter extends AbstractDynamicColumnSetter {
-    @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1298
     public JsonColumnSetter(
             final PageBuilder pageBuilder,
             final Column column,
             final DefaultValueSetter defaultValueSetter,
-            final org.embulk.spi.time.TimestampFormatter timestampFormatter) {
+            final TimestampFormatter timestampFormatter) {
         super(pageBuilder, column, defaultValueSetter);
         this.timestampFormatter = timestampFormatter;
     }
@@ -59,9 +59,8 @@ public class JsonColumnSetter extends AbstractDynamicColumnSetter {
     }
 
     @Override
-    @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1292
     public void set(final Instant v) {
-        this.pageBuilder.setJson(this.column, ValueFactory.newString(timestampFormatter.format(org.embulk.spi.time.Timestamp.ofInstant(v))));
+        this.pageBuilder.setJson(this.column, ValueFactory.newString(timestampFormatter.format(v)));
     }
 
     @Override
@@ -69,6 +68,5 @@ public class JsonColumnSetter extends AbstractDynamicColumnSetter {
         this.pageBuilder.setJson(this.column, v);
     }
 
-    @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1298
-    private final org.embulk.spi.time.TimestampFormatter timestampFormatter;
+    private final TimestampFormatter timestampFormatter;
 }
