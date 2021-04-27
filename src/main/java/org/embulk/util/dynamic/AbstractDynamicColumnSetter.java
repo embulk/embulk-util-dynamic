@@ -1,9 +1,8 @@
-package org.embulk.spi.util.dynamic;
+package org.embulk.util.dynamic;
 
 import java.time.Instant;
 import org.embulk.spi.Column;
 import org.embulk.spi.PageBuilder;
-import org.embulk.spi.util.DynamicColumnSetter;
 import org.msgpack.value.Value;
 
 public abstract class AbstractDynamicColumnSetter implements DynamicColumnSetter {

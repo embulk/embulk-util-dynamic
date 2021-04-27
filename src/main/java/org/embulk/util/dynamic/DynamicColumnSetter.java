@@ -1,4 +1,4 @@
-package org.embulk.spi.util;
+package org.embulk.util.dynamic;
 
 import java.time.Instant;
 import org.msgpack.value.Value;

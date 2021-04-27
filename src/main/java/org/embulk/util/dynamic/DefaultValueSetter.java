@@ -1,4 +1,4 @@
-package org.embulk.spi.util.dynamic;
+package org.embulk.util.dynamic;
 
 import org.embulk.spi.Column;
 import org.embulk.spi.PageBuilder;

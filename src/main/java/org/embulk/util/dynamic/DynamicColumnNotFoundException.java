@@ -1,4 +1,4 @@
-package org.embulk.spi.util;
+package org.embulk.util.dynamic;
 
 public class DynamicColumnNotFoundException extends RuntimeException {
     public DynamicColumnNotFoundException(String message) {

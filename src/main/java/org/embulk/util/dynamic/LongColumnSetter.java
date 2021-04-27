@@ -1,4 +1,4 @@
-package org.embulk.spi.util.dynamic;
+package org.embulk.util.dynamic;
 
 import com.google.common.math.DoubleMath;
 import java.math.RoundingMode;
