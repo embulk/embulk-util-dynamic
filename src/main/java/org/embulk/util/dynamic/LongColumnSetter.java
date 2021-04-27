@@ -16,8 +16,6 @@
 
 package org.embulk.util.dynamic;
 
-import com.google.common.math.DoubleMath;
-import java.math.RoundingMode;
 import java.time.Instant;
 import org.embulk.spi.Column;
 import org.embulk.spi.PageBuilder;
@@ -50,8 +48,15 @@ public class LongColumnSetter extends AbstractDynamicColumnSetter {
     public void set(final double v) {
         final long lv;
         try {
-            // TODO configurable rounding mode
-            lv = DoubleMath.roundToLong(v, RoundingMode.HALF_UP);
+            final double roundedDouble = Math.rint(v);
+            final double diff = v - roundedDouble;
+            if (diff == 0.5) {
+                lv = (long) (v + 0.5);
+            } else if (diff == -0.5) {
+                lv = (long) (v - 0.5);
+            } else {
+                lv = (long) roundedDouble;
+            }
         } catch (final ArithmeticException ex) {
             // NaN / Infinite / -Infinite
             this.defaultValueSetter.setLong(this.pageBuilder, this.column);
