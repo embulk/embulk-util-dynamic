@@ -23,64 +23,66 @@ import org.msgpack.value.Value;
 
 public class TimestampColumnSetter extends AbstractDynamicColumnSetter {
     @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1298
-    private final org.embulk.spi.time.TimestampParser timestampParser;
-
-    @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1298
-    public TimestampColumnSetter(PageBuilder pageBuilder, Column column,
-            DefaultValueSetter defaultValue,
-            org.embulk.spi.time.TimestampParser timestampParser) {
-        super(pageBuilder, column, defaultValue);
+    public TimestampColumnSetter(
+            final PageBuilder pageBuilder,
+            final Column column,
+            final DefaultValueSetter defaultValueSetter,
+            final org.embulk.spi.time.TimestampParser timestampParser) {
+        super(pageBuilder, column, defaultValueSetter);
         this.timestampParser = timestampParser;
     }
 
     @Override
     public void setNull() {
-        pageBuilder.setNull(column);
+        this.pageBuilder.setNull(this.column);
     }
 
     @Override
-    public void set(boolean v) {
-        defaultValue.setTimestamp(pageBuilder, column);
-    }
-
-    @Override
-    @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1292
-    public void set(long v) {
-        pageBuilder.setTimestamp(column, org.embulk.spi.time.Timestamp.ofEpochSecond(v));
+    public void set(final boolean v) {
+        this.defaultValueSetter.setTimestamp(this.pageBuilder, this.column);
     }
 
     @Override
     @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1292
-    public void set(double v) {
-        long sec = (long) v;
-        int nsec = (int) ((v - (double) sec) * 1000000000);
-        pageBuilder.setTimestamp(column, org.embulk.spi.time.Timestamp.ofEpochSecond(sec, nsec));
-        defaultValue.setTimestamp(pageBuilder, column);
+    public void set(final long v) {
+        this.pageBuilder.setTimestamp(this.column, org.embulk.spi.time.Timestamp.ofEpochSecond(v));
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1292
+    public void set(final double v) {
+        final long sec = (long) v;
+        final int nsec = (int) ((v - (double) sec) * 1000000000);
+        this.pageBuilder.setTimestamp(this.column, org.embulk.spi.time.Timestamp.ofEpochSecond(sec, nsec));
+        this.defaultValueSetter.setTimestamp(this.pageBuilder, this.column);
     }
 
     @Override
     @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1298
-    public void set(String v) {
+    public void set(final String v) {
         try {
-            pageBuilder.setTimestamp(column, timestampParser.parse(v));
-        } catch (org.embulk.spi.time.TimestampParseException e) {
-            defaultValue.setTimestamp(pageBuilder, column);
+            this.pageBuilder.setTimestamp(this.column, this.timestampParser.parse(v));
+        } catch (final org.embulk.spi.time.TimestampParseException ex) {
+            this.defaultValueSetter.setTimestamp(this.pageBuilder, this.column);
         }
     }
 
     @Override
     @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1292
-    public void set(org.embulk.spi.time.Timestamp v) {
-        pageBuilder.setTimestamp(column, v);
+    public void set(final org.embulk.spi.time.Timestamp v) {
+        this.pageBuilder.setTimestamp(this.column, v);
     }
 
     @Override
-    public void set(Instant v) {
-        pageBuilder.setTimestamp(column, v);
+    public void set(final Instant v) {
+        this.pageBuilder.setTimestamp(this.column, v);
     }
 
     @Override
-    public void set(Value v) {
-        defaultValue.setTimestamp(pageBuilder, column);
+    public void set(final Value v) {
+        this.defaultValueSetter.setTimestamp(this.pageBuilder, this.column);
     }
+
+    @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1298
+    private final org.embulk.spi.time.TimestampParser timestampParser;
 }

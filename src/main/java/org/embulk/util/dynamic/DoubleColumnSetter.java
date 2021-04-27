@@ -22,60 +22,62 @@ import org.embulk.spi.PageBuilder;
 import org.msgpack.value.Value;
 
 public class DoubleColumnSetter extends AbstractDynamicColumnSetter {
-    public DoubleColumnSetter(PageBuilder pageBuilder, Column column,
-            DefaultValueSetter defaultValue) {
-        super(pageBuilder, column, defaultValue);
+    public DoubleColumnSetter(
+            final PageBuilder pageBuilder,
+            final Column column,
+            final DefaultValueSetter defaultValueSetter) {
+        super(pageBuilder, column, defaultValueSetter);
     }
 
     @Override
     public void setNull() {
-        pageBuilder.setNull(column);
+        this.pageBuilder.setNull(this.column);
     }
 
     @Override
-    public void set(boolean v) {
-        pageBuilder.setDouble(column, v ? 1.0 : 0.0);
+    public void set(final boolean v) {
+        this.pageBuilder.setDouble(this.column, v ? 1.0 : 0.0);
     }
 
     @Override
-    public void set(long v) {
-        pageBuilder.setDouble(column, (double) v);
+    public void set(final long v) {
+        this.pageBuilder.setDouble(this.column, (double) v);
     }
 
     @Override
-    public void set(double v) {
-        pageBuilder.setDouble(column, v);
+    public void set(final double v) {
+        this.pageBuilder.setDouble(this.column, v);
     }
 
     @Override
-    public void set(String v) {
-        double dv;
+    public void set(final String v) {
+        final double dv;
         try {
             dv = Double.parseDouble(v);
-        } catch (NumberFormatException e) {
-            defaultValue.setDouble(pageBuilder, column);
+        } catch (final NumberFormatException ex) {
+            this.defaultValueSetter.setDouble(this.pageBuilder, this.column);
             return;
         }
-        pageBuilder.setDouble(column, dv);
+        this.pageBuilder.setDouble(this.column, dv);
     }
 
     @Override
     @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1292
     public void set(final org.embulk.spi.time.Timestamp v) {
-        double sec = (double) v.getEpochSecond();
-        double frac = v.getNano() / 1000000000.0;
-        pageBuilder.setDouble(column, sec + frac);
+        final double sec = (double) v.getEpochSecond();
+        final double frac = v.getNano() / 1000000000.0;
+        this.pageBuilder.setDouble(this.column, sec + frac);
     }
 
     @Override
-    public void set(Instant v) {
-        double sec = (double) v.getEpochSecond();
-        double frac = v.getNano() / 1000000000.0;
-        pageBuilder.setDouble(column, sec + frac);
+    public void set(final Instant v) {
+        final double sec = (double) v.getEpochSecond();
+        final double frac = v.getNano() / 1000000000.0;
+        this.pageBuilder.setDouble(this.column, sec + frac);
     }
 
     @Override
-    public void set(Value v) {
-        defaultValue.setDouble(pageBuilder, column);
+    public void set(final Value v) {
+        this.defaultValueSetter.setDouble(this.pageBuilder, this.column);
     }
 }

@@ -23,61 +23,62 @@ import org.embulk.spi.PageBuilder;
 import org.msgpack.value.Value;
 
 public class BooleanColumnSetter extends AbstractDynamicColumnSetter {
-    private static final ImmutableSet<String> TRUE_STRINGS =
-            ImmutableSet.of(
-                    "true", "True", "TRUE",
-                    "yes", "Yes", "YES",
-                    "t", "T", "y", "Y",
-                    "on", "On",
-                    "ON", "1");
-
-    public BooleanColumnSetter(PageBuilder pageBuilder, Column column,
-            DefaultValueSetter defaultValue) {
-        super(pageBuilder, column, defaultValue);
+    public BooleanColumnSetter(
+            final PageBuilder pageBuilder,
+            final Column column,
+            final DefaultValueSetter defaultValueSetter) {
+        super(pageBuilder, column, defaultValueSetter);
     }
 
     @Override
     public void setNull() {
-        pageBuilder.setNull(column);
+        this.pageBuilder.setNull(this.column);
     }
 
     @Override
-    public void set(boolean v) {
-        pageBuilder.setBoolean(column, v);
+    public void set(final boolean v) {
+        this.pageBuilder.setBoolean(this.column, v);
     }
 
     @Override
-    public void set(long v) {
-        pageBuilder.setBoolean(column, v > 0);
+    public void set(final long v) {
+        this.pageBuilder.setBoolean(this.column, v > 0);
     }
 
     @Override
-    public void set(double v) {
-        pageBuilder.setBoolean(column, v > 0.0);
+    public void set(final double v) {
+        this.pageBuilder.setBoolean(this.column, v > 0.0);
     }
 
     @Override
-    public void set(String v) {
+    public void set(final String v) {
         if (TRUE_STRINGS.contains(v)) {
-            pageBuilder.setBoolean(column, true);
+            this.pageBuilder.setBoolean(this.column, true);
         } else {
-            defaultValue.setBoolean(pageBuilder, column);
+            this.defaultValueSetter.setBoolean(this.pageBuilder, column);
         }
     }
 
     @Override
     @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1292
-    public void set(org.embulk.spi.time.Timestamp v) {
-        defaultValue.setBoolean(pageBuilder, column);
+    public void set(final org.embulk.spi.time.Timestamp v) {
+        this.defaultValueSetter.setBoolean(this.pageBuilder, this.column);
     }
 
     @Override
-    public void set(Instant v) {
-        defaultValue.setBoolean(pageBuilder, column);
+    public void set(final Instant v) {
+        this.defaultValueSetter.setBoolean(this.pageBuilder, this.column);
     }
 
     @Override
-    public void set(Value v) {
-        defaultValue.setBoolean(pageBuilder, column);
+    public void set(final Value v) {
+        this.defaultValueSetter.setBoolean(this.pageBuilder, this.column);
     }
+
+    private static final ImmutableSet<String> TRUE_STRINGS = ImmutableSet.of(
+            "true", "True", "TRUE",
+            "yes", "Yes", "YES",
+            "t", "T", "y", "Y",
+            "on", "On",
+            "ON", "1");
 }

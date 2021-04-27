@@ -29,48 +29,44 @@ import org.embulk.spi.type.TimestampType;
 import org.embulk.spi.type.Type;
 
 class DynamicColumnSetterFactory {
-    private final DefaultValueSetter defaultValue;
-    private final DynamicPageBuilder.BuilderTask task;
-    private final boolean useColumnForTimestampMetadata;
-
     private DynamicColumnSetterFactory(
             final DynamicPageBuilder.BuilderTask task,
-            final DefaultValueSetter defaultValue,
+            final DefaultValueSetter defaultValueSetter,
             final boolean useColumnForTimestampMetadata) {
-        this.defaultValue = defaultValue;
+        this.defaultValueSetter = defaultValueSetter;
         this.task = task;
         this.useColumnForTimestampMetadata = useColumnForTimestampMetadata;
     }
 
     static DynamicColumnSetterFactory createWithTimestampMetadataFromBuilderTask(
             final DynamicPageBuilder.BuilderTask task,
-            final DefaultValueSetter defaultValue) {
-        return new DynamicColumnSetterFactory(task, defaultValue, false);
+            final DefaultValueSetter defaultValueSetter) {
+        return new DynamicColumnSetterFactory(task, defaultValueSetter, false);
     }
 
     static DynamicColumnSetterFactory createWithTimestampMetadataFromColumn(
             final DynamicPageBuilder.BuilderTask task,
-            final DefaultValueSetter defaultValue) {
-        return new DynamicColumnSetterFactory(task, defaultValue, true);
+            final DefaultValueSetter defaultValueSetter) {
+        return new DynamicColumnSetterFactory(task, defaultValueSetter, true);
     }
 
-    public static DefaultValueSetter nullDefaultValue() {
+    public static DefaultValueSetter nullDefaultValueSetter() {
         return new NullDefaultValueSetter();
     }
 
     @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1298
-    public DynamicColumnSetter newColumnSetter(PageBuilder pageBuilder, Column column) {
-        Type type = column.getType();
+    public DynamicColumnSetter newColumnSetter(final PageBuilder pageBuilder, final Column column) {
+        final Type type = column.getType();
         if (type instanceof BooleanType) {
-            return new BooleanColumnSetter(pageBuilder, column, defaultValue);
+            return new BooleanColumnSetter(pageBuilder, column, this.defaultValueSetter);
         } else if (type instanceof LongType) {
-            return new LongColumnSetter(pageBuilder, column, defaultValue);
+            return new LongColumnSetter(pageBuilder, column, this.defaultValueSetter);
         } else if (type instanceof DoubleType) {
-            return new DoubleColumnSetter(pageBuilder, column, defaultValue);
+            return new DoubleColumnSetter(pageBuilder, column, this.defaultValueSetter);
         } else if (type instanceof StringType) {
             final org.embulk.spi.time.TimestampFormatter formatter = org.embulk.spi.time.TimestampFormatter.of(
                     getTimestampFormatForFormatter(column), getTimeZoneId(column));
-            return new StringColumnSetter(pageBuilder, column, defaultValue, formatter);
+            return new StringColumnSetter(pageBuilder, column, this.defaultValueSetter, formatter);
         } else if (type instanceof TimestampType) {
             // TODO use flexible time format like Ruby's Time.parse
             final org.embulk.spi.time.TimestampParser parser;
@@ -82,17 +78,17 @@ class DynamicColumnSetterFactory {
             } else {
                 parser = org.embulk.spi.time.TimestampParser.of(getTimestampFormatForParser(column), getTimeZoneId(column));
             }
-            return new TimestampColumnSetter(pageBuilder, column, defaultValue, parser);
+            return new TimestampColumnSetter(pageBuilder, column, this.defaultValueSetter, parser);
         } else if (type instanceof JsonType) {
             final org.embulk.spi.time.TimestampFormatter formatter = org.embulk.spi.time.TimestampFormatter.of(
                     getTimestampFormatForFormatter(column), getTimeZoneId(column));
-            return new JsonColumnSetter(pageBuilder, column, defaultValue, formatter);
+            return new JsonColumnSetter(pageBuilder, column, this.defaultValueSetter, formatter);
         }
         throw new ConfigException("Unknown column type: " + type);
     }
 
-    private String getTimestampFormatForFormatter(Column column) {
-        DynamicPageBuilder.ColumnOption option = getColumnOption(column);
+    private String getTimestampFormatForFormatter(final Column column) {
+        final DynamicPageBuilder.ColumnOption option = getColumnOption(column);
         if (option != null) {
             return option.getTimestampFormatString();
         } else {
@@ -100,8 +96,8 @@ class DynamicColumnSetterFactory {
         }
     }
 
-    private String getTimestampFormatForParser(Column column) {
-        DynamicPageBuilder.ColumnOption option = getColumnOption(column);
+    private String getTimestampFormatForParser(final Column column) {
+        final DynamicPageBuilder.ColumnOption option = getColumnOption(column);
         if (option != null) {
             return option.getTimestampFormatString();
         } else {
@@ -109,18 +105,18 @@ class DynamicColumnSetterFactory {
         }
     }
 
-    private String getTimeZoneId(Column column) {
-        DynamicPageBuilder.ColumnOption option = getColumnOption(column);
+    private String getTimeZoneId(final Column column) {
+        final DynamicPageBuilder.ColumnOption option = getColumnOption(column);
         if (option != null) {
-            return option.getTimeZoneId().or(task.getDefaultTimeZoneId());
+            return option.getTimeZoneId().or(this.task.getDefaultTimeZoneId());
         } else {
-            return task.getDefaultTimeZoneId();
+            return this.task.getDefaultTimeZoneId();
         }
     }
 
     @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1301
-    private DynamicPageBuilder.ColumnOption getColumnOption(Column column) {
-        ConfigSource option = task.getColumnOptions().get(column.getName());
+    private DynamicPageBuilder.ColumnOption getColumnOption(final Column column) {
+        final ConfigSource option = this.task.getColumnOptions().get(column.getName());
         if (option != null) {
             return option.loadConfig(DynamicPageBuilder.ColumnOption.class);
         } else {
@@ -133,4 +129,8 @@ class DynamicColumnSetterFactory {
     private String getFormatFromTimestampTypeWithDepracationSuppressed(final TimestampType timestampType) {
         return timestampType.getFormat();
     }
+
+    private final DefaultValueSetter defaultValueSetter;
+    private final DynamicPageBuilder.BuilderTask task;
+    private final boolean useColumnForTimestampMetadata;
 }
