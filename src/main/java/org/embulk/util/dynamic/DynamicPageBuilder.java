@@ -31,9 +31,10 @@ public class DynamicPageBuilder implements AutoCloseable {
     private DynamicPageBuilder(
             final DynamicColumnSetterFactory factory,
             final BufferAllocator allocator,
+            final PageBuilder pageBuilder,
             final Schema schema,
             final PageOutput output) {
-        this.pageBuilder = new PageBuilder(allocator, schema, output);
+        this.pageBuilder = pageBuilder;
         this.schema = schema;
         final ImmutableList.Builder<DynamicColumnSetter> setters = ImmutableList.builder();
         final ImmutableMap.Builder<String, DynamicColumnSetter> lookup = ImmutableMap.builder();
@@ -50,24 +51,26 @@ public class DynamicPageBuilder implements AutoCloseable {
             final String defaultZoneString,
             final Map<String, ConfigSource> columnOptions,
             final BufferAllocator allocator,
+            final PageBuilder pageBuilder,
             final Schema schema,
             final PageOutput output) {
         // TODO configurable default value
         final DynamicColumnSetterFactory factory = DynamicColumnSetterFactory.createWithTimestampMetadata(
                 defaultZoneString, columnOptions, DynamicColumnSetterFactory.nullDefaultValueSetter());
-        return new DynamicPageBuilder(factory, allocator, schema, output);
+        return new DynamicPageBuilder(factory, allocator, pageBuilder, schema, output);
     }
 
     public static DynamicPageBuilder createWithTimestampMetadataFromColumn(
             final String defaultZoneString,
             final Map<String, ConfigSource> columnOptions,
             final BufferAllocator allocator,
+            final PageBuilder pageBuilder,
             final Schema schema,
             final PageOutput output) {
         // TODO configurable default value
         final DynamicColumnSetterFactory factory = DynamicColumnSetterFactory.createWithTimestampMetadataFromColumn(
                 defaultZoneString, columnOptions, DynamicColumnSetterFactory.nullDefaultValueSetter());
-        return new DynamicPageBuilder(factory, allocator, schema, output);
+        return new DynamicPageBuilder(factory, allocator, pageBuilder, schema, output);
     }
 
     public List<Column> getColumns() {
