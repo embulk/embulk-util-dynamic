@@ -16,6 +16,7 @@
 
 package org.embulk.util.dynamic;
 
+import java.util.Map;
 import org.embulk.config.ConfigException;
 import org.embulk.config.ConfigSource;
 import org.embulk.spi.Column;
@@ -31,24 +32,28 @@ import org.embulk.util.timestamp.TimestampFormatter;
 
 class DynamicColumnSetterFactory {
     private DynamicColumnSetterFactory(
-            final DynamicPageBuilder.BuilderTask task,
+            final String defaultZoneString,
+            final Map<String, ConfigSource> columnOptions,
             final DefaultValueSetter defaultValueSetter,
             final boolean useColumnForTimestampMetadata) {
+        this.defaultZoneString = defaultZoneString;
+        this.columnOptions = columnOptions;
         this.defaultValueSetter = defaultValueSetter;
-        this.task = task;
         this.useColumnForTimestampMetadata = useColumnForTimestampMetadata;
     }
 
-    static DynamicColumnSetterFactory createWithTimestampMetadataFromBuilderTask(
-            final DynamicPageBuilder.BuilderTask task,
+    static DynamicColumnSetterFactory createWithTimestampMetadata(
+            final String defaultZoneString,
+            final Map<String, ConfigSource> columnOptions,
             final DefaultValueSetter defaultValueSetter) {
-        return new DynamicColumnSetterFactory(task, defaultValueSetter, false);
+        return new DynamicColumnSetterFactory(defaultZoneString, columnOptions, defaultValueSetter, false);
     }
 
     static DynamicColumnSetterFactory createWithTimestampMetadataFromColumn(
-            final DynamicPageBuilder.BuilderTask task,
+            final String defaultZoneString,
+            final Map<String, ConfigSource> columnOptions,
             final DefaultValueSetter defaultValueSetter) {
-        return new DynamicColumnSetterFactory(task, defaultValueSetter, true);
+        return new DynamicColumnSetterFactory(defaultZoneString, columnOptions, defaultValueSetter, true);
     }
 
     public static DefaultValueSetter nullDefaultValueSetter() {
@@ -93,40 +98,27 @@ class DynamicColumnSetterFactory {
     }
 
     private String getTimestampFormatForFormatter(final Column column) {
-        final DynamicPageBuilder.ColumnOption option = getColumnOption(column);
-        if (option != null) {
-            return option.getTimestampFormatString();
-        } else {
+        final ConfigSource option = this.columnOptions.get(column.getName());
+        if (option == null) {
             return "%Y-%m-%d %H:%M:%S.%6N";
         }
+        return option.get(String.class, "timestamp_format", "%Y-%m-%d %H:%M:%S.%6N");
     }
 
     private String getTimestampFormatForParser(final Column column) {
-        final DynamicPageBuilder.ColumnOption option = getColumnOption(column);
-        if (option != null) {
-            return option.getTimestampFormatString();
-        } else {
+        final ConfigSource option = this.columnOptions.get(column.getName());
+        if (option == null) {
             return "%Y-%m-%d %H:%M:%S.%N";
         }
+        return option.get(String.class, "timestamp_format", "%Y-%m-%d %H:%M:%S.%N");
     }
 
     private String getTimeZoneId(final Column column) {
-        final DynamicPageBuilder.ColumnOption option = getColumnOption(column);
-        if (option != null) {
-            return option.getTimeZoneId().or(this.task.getDefaultTimeZoneId());
-        } else {
-            return this.task.getDefaultTimeZoneId();
+        final ConfigSource option = this.columnOptions.get(column.getName());
+        if (option == null) {
+            return this.defaultZoneString;
         }
-    }
-
-    @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1301
-    private DynamicPageBuilder.ColumnOption getColumnOption(final Column column) {
-        final ConfigSource option = this.task.getColumnOptions().get(column.getName());
-        if (option != null) {
-            return option.loadConfig(DynamicPageBuilder.ColumnOption.class);
-        } else {
-            return null;
-        }
+        return option.get(String.class, "timezone", this.defaultZoneString);
     }
 
     // TODO: Stop using TimestampType.getFormat.
@@ -135,7 +127,8 @@ class DynamicColumnSetterFactory {
         return timestampType.getFormat();
     }
 
+    private final String defaultZoneString;
+    private final Map<String, ConfigSource> columnOptions;
     private final DefaultValueSetter defaultValueSetter;
-    private final DynamicPageBuilder.BuilderTask task;
     private final boolean useColumnForTimestampMetadata;
 }

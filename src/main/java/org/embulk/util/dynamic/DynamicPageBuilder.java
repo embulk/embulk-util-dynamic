@@ -16,21 +16,16 @@
 
 package org.embulk.util.dynamic;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.Map;
-import org.embulk.config.Config;
-import org.embulk.config.ConfigDefault;
 import org.embulk.config.ConfigSource;
-import org.embulk.config.Task;
 import org.embulk.spi.BufferAllocator;
 import org.embulk.spi.Column;
 import org.embulk.spi.PageBuilder;
 import org.embulk.spi.PageOutput;
 import org.embulk.spi.Schema;
-import org.embulk.spi.time.TimeZoneIds;
 
 public class DynamicPageBuilder implements AutoCloseable {
     private DynamicPageBuilder(
@@ -51,77 +46,28 @@ public class DynamicPageBuilder implements AutoCloseable {
         this.columnLookup = lookup.build();
     }
 
-    public static DynamicPageBuilder createWithTimestampMetadataFromBuilderTask(
-            final BuilderTask task,
+    public static DynamicPageBuilder createWithTimestampMetadata(
+            final String defaultZoneString,
+            final Map<String, ConfigSource> columnOptions,
             final BufferAllocator allocator,
             final Schema schema,
             final PageOutput output) {
         // TODO configurable default value
-        final DynamicColumnSetterFactory factory = DynamicColumnSetterFactory.createWithTimestampMetadataFromBuilderTask(
-                task, DynamicColumnSetterFactory.nullDefaultValueSetter());
+        final DynamicColumnSetterFactory factory = DynamicColumnSetterFactory.createWithTimestampMetadata(
+                defaultZoneString, columnOptions, DynamicColumnSetterFactory.nullDefaultValueSetter());
         return new DynamicPageBuilder(factory, allocator, schema, output);
     }
 
     public static DynamicPageBuilder createWithTimestampMetadataFromColumn(
-            final BuilderTask task,
+            final String defaultZoneString,
+            final Map<String, ConfigSource> columnOptions,
             final BufferAllocator allocator,
             final Schema schema,
             final PageOutput output) {
         // TODO configurable default value
         final DynamicColumnSetterFactory factory = DynamicColumnSetterFactory.createWithTimestampMetadataFromColumn(
-                task, DynamicColumnSetterFactory.nullDefaultValueSetter());
+                defaultZoneString, columnOptions, DynamicColumnSetterFactory.nullDefaultValueSetter());
         return new DynamicPageBuilder(factory, allocator, schema, output);
-    }
-
-    public static interface BuilderTask extends Task {
-        @Config("default_timezone")
-        @ConfigDefault("\"UTC\"")
-        public String getDefaultTimeZoneId();
-
-        // Using Joda-Time is deprecated, but the getter returns org.joda.time.DateTimeZone for plugin compatibility.
-        // It won't be removed very soon at least until Embulk v0.10.
-        @Deprecated
-        public default org.joda.time.DateTimeZone getDefaultTimeZone() {
-            if (getDefaultTimeZoneId() != null) {
-                return TimeZoneIds.parseJodaDateTimeZone(getDefaultTimeZoneId());
-            } else {
-                return null;
-            }
-        }
-
-        @Config("column_options")
-        @ConfigDefault("{}")
-        public Map<String, ConfigSource> getColumnOptions();
-    }
-
-    public static interface ColumnOption extends Task {
-        // DynamicPageBuilder is used for inputs, then datetime parsing.
-        // Ruby's strptime does not accept numeric prefixes in specifiers such as "%6N".
-        @Config("timestamp_format")
-        @ConfigDefault("\"%Y-%m-%d %H:%M:%S.%N\"")
-        public String getTimestampFormatString();
-
-        // org.embulk.spi.time.TimestampFormat is deprecated, but the getter returns TimestampFormat for compatibility.
-        // It won't be removed very soon at least until Embulk v0.10.
-        @Deprecated
-        public default org.embulk.spi.time.TimestampFormat getTimestampFormat() {
-            return new org.embulk.spi.time.TimestampFormat(getTimestampFormatString());
-        }
-
-        @Config("timezone")
-        @ConfigDefault("null")
-        public Optional<String> getTimeZoneId();
-
-        // Using Joda-Time is deprecated, but the getter returns org.joda.time.DateTimeZone for plugin compatibility.
-        // It won't be removed very soon at least until Embulk v0.10.
-        @Deprecated
-        public default Optional<org.joda.time.DateTimeZone> getTimeZone() {
-            if (getTimeZoneId().isPresent()) {
-                return Optional.of(TimeZoneIds.parseJodaDateTimeZone(getTimeZoneId().get()));
-            } else {
-                return Optional.absent();
-            }
-        }
     }
 
     public List<Column> getColumns() {
