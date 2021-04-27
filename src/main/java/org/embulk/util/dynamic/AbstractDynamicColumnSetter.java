@@ -46,16 +46,8 @@ public abstract class AbstractDynamicColumnSetter implements DynamicColumnSetter
     @Override
     public abstract void set(String value);
 
-    @Deprecated
     @Override
-    @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1292
-    public abstract void set(org.embulk.spi.time.Timestamp value);
-
-    @Override
-    @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1292
-    public void set(final Instant value) {
-        this.set(org.embulk.spi.time.Timestamp.ofInstant(value));
-    }
+    public abstract void set(Instant value);
 
     @Override
     public abstract void set(Value value);

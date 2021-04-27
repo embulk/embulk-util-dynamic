@@ -30,14 +30,7 @@ public interface DynamicColumnSetter {
 
     void set(String value);
 
-    @Deprecated
-    @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1292
-    void set(org.embulk.spi.time.Timestamp value);
-
-    @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1292
-    default void set(Instant value) {
-        this.set(org.embulk.spi.time.Timestamp.ofInstant(value));
-    }
+    void set(Instant value);
 
     void set(Value value);
 }

@@ -44,10 +44,6 @@ public class SkipColumnSetter extends AbstractDynamicColumnSetter {
     public void set(final String v) {}
 
     @Override
-    @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1292
-    public void set(final org.embulk.spi.time.Timestamp v) {}
-
-    @Override
     public void set(final Instant v) {}
 
     @Override

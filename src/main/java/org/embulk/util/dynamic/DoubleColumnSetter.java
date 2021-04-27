@@ -62,14 +62,6 @@ public class DoubleColumnSetter extends AbstractDynamicColumnSetter {
     }
 
     @Override
-    @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/1292
-    public void set(final org.embulk.spi.time.Timestamp v) {
-        final double sec = (double) v.getEpochSecond();
-        final double frac = v.getNano() / 1000000000.0;
-        this.pageBuilder.setDouble(this.column, sec + frac);
-    }
-
-    @Override
     public void set(final Instant v) {
         final double sec = (double) v.getEpochSecond();
         final double frac = v.getNano() / 1000000000.0;
