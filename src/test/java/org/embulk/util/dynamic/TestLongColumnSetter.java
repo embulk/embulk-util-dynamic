@@ -16,11 +16,14 @@
 
 package org.embulk.util.dynamic;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import com.google.common.math.DoubleMath;
+import java.math.RoundingMode;
 import org.embulk.spi.Column;
 import org.embulk.spi.PageBuilder;
 import org.embulk.spi.type.Types;
@@ -31,7 +34,7 @@ public class TestLongColumnSetter {
     @ParameterizedTest
     @CsvSource({
             "-1.500000000001, -2",
-            "-1.5, -1",
+            "-1.5, -2",
             "-0.5, -1",
             "-0.499999999999, 0",
             "0.0, 0",
@@ -40,12 +43,15 @@ public class TestLongColumnSetter {
             "0.5, 1",
             "0.7, 1",
             "1.3, 1",
-            "1.5, 1",
+            "1.5, 2",
             "1.500000000001, 2",
             "2.499999999999, 2",
             "2.5, 3",
     })
     public void testDoubles(final String value, final String expected) {
+        // At first, it should be equal to Guava's DoubleMath.roundToLong(v, RoundingMode.HALF_UP).
+        assertEquals(Long.parseLong(expected), DoubleMath.roundToLong(Double.parseDouble(value), RoundingMode.HALF_UP));
+
         final PageBuilder mockedPageBuilder = mock(PageBuilder.class);
         final LongColumnSetter setter = create(mockedPageBuilder);
         setter.set(Double.parseDouble(value));
