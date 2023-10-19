@@ -20,8 +20,8 @@ import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import org.embulk.spi.Column;
 import org.embulk.spi.PageBuilder;
+import org.embulk.spi.json.JsonValue;
 import org.embulk.util.timestamp.TimestampFormatter;
-import org.msgpack.value.Value;
 
 public class TimestampColumnSetter extends AbstractDynamicColumnSetter {
     public TimestampColumnSetter(
@@ -130,7 +130,7 @@ public class TimestampColumnSetter extends AbstractDynamicColumnSetter {
     }
 
     @Override
-    public void set(final Value v) {
+    public void set(final JsonValue v) {
         this.defaultValueSetter.setTimestamp(this.pageBuilder, this.column);
     }
 

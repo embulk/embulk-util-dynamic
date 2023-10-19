@@ -19,8 +19,8 @@ package org.embulk.util.dynamic;
 import java.time.Instant;
 import org.embulk.spi.Column;
 import org.embulk.spi.PageBuilder;
+import org.embulk.spi.json.JsonValue;
 import org.embulk.util.timestamp.TimestampFormatter;
-import org.msgpack.value.Value;
 
 public class StringColumnSetter extends AbstractDynamicColumnSetter {
     public StringColumnSetter(
@@ -63,7 +63,7 @@ public class StringColumnSetter extends AbstractDynamicColumnSetter {
     }
 
     @Override
-    public void set(final Value v) {
+    public void set(final JsonValue v) {
         this.pageBuilder.setString(this.column, v.toJson());
     }
 

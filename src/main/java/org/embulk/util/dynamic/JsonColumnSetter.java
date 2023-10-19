@@ -19,9 +19,12 @@ package org.embulk.util.dynamic;
 import java.time.Instant;
 import org.embulk.spi.Column;
 import org.embulk.spi.PageBuilder;
+import org.embulk.spi.json.JsonBoolean;
+import org.embulk.spi.json.JsonDouble;
+import org.embulk.spi.json.JsonLong;
+import org.embulk.spi.json.JsonString;
+import org.embulk.spi.json.JsonValue;
 import org.embulk.util.timestamp.TimestampFormatter;
-import org.msgpack.value.Value;
-import org.msgpack.value.ValueFactory;
 
 public class JsonColumnSetter extends AbstractDynamicColumnSetter {
     public JsonColumnSetter(
@@ -40,31 +43,31 @@ public class JsonColumnSetter extends AbstractDynamicColumnSetter {
 
     @Override
     public void set(final boolean v) {
-        this.pageBuilder.setJson(this.column, ValueFactory.newBoolean(v));
+        this.pageBuilder.setJson(this.column, JsonBoolean.of(v));
     }
 
     @Override
     public void set(final long v) {
-        this.pageBuilder.setJson(this.column, ValueFactory.newInteger(v));
+        this.pageBuilder.setJson(this.column, JsonLong.of(v));
     }
 
     @Override
     public void set(final double v) {
-        this.pageBuilder.setJson(this.column, ValueFactory.newFloat(v));
+        this.pageBuilder.setJson(this.column, JsonDouble.of(v));
     }
 
     @Override
     public void set(final String v) {
-        this.pageBuilder.setJson(this.column, ValueFactory.newString(v));
+        this.pageBuilder.setJson(this.column, JsonString.of(v));
     }
 
     @Override
     public void set(final Instant v) {
-        this.pageBuilder.setJson(this.column, ValueFactory.newString(timestampFormatter.format(v)));
+        this.pageBuilder.setJson(this.column, JsonString.of(this.timestampFormatter.format(v)));
     }
 
     @Override
-    public void set(final Value v) {
+    public void set(final JsonValue v) {
         this.pageBuilder.setJson(this.column, v);
     }
 
