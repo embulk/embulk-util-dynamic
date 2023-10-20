@@ -14,9 +14,6 @@ group = "org.embulk"
 version = "0.2.0-SNAPSHOT"
 description = "Embulk dynamic column setter for Embulk plugins"
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
 configurations {
     compileClasspath.resolutionStrategy.activateDependencyLocking()
     runtimeClasspath.resolutionStrategy.activateDependencyLocking()
@@ -28,6 +25,10 @@ tasks.withType(JavaCompile) {
 }
 
 java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(8)
+    }
+
     withJavadocJar()
     withSourcesJar()
 }
@@ -62,21 +63,31 @@ javadoc {
 jar {
     metaInf {
         from rootProject.file("LICENSE")
-        from rootProject.file("NOTICE")
     }
 }
 
 sourcesJar {
     metaInf {
         from rootProject.file("LICENSE")
-        from rootProject.file("NOTICE")
     }
 }
 
 javadocJar {
     metaInf {
         from rootProject.file("LICENSE")
-        from rootProject.file("NOTICE")
+    }
+}
+
+// A safer and strict alternative to: "dependencies" (and "dependencies --write-locks")
+//
+// This task fails explicitly when the specified dependency is not available.
+// In contrast, "dependencies (--write-locks)" does not fail even when a part the dependencies are unavailable.
+//
+// https://docs.gradle.org/7.6.1/userguide/dependency_locking.html#generating_and_updating_dependency_locks
+task checkDependencies {
+    notCompatibleWithConfigurationCache("The task \"checkDependencies\" filters configurations at execution time.")
+    doLast {
+        configurations.findAll { it.canBeResolved }.each { it.resolve() }
     }
 }
 
@@ -108,6 +119,7 @@ publishing {
                         // http://central.sonatype.org/pages/requirements.html#license-information
                         name = "The Apache License, Version 2.0"
                         url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+                        distribution = "repo"
                     }
                 }
 
@@ -118,7 +130,7 @@ publishing {
                     }
                     developer {
                         name = "Dai MIKURUBE"
-                        email = "dmikurube@treasure-data.com"
+                        email = "dmikurube@acm.org"
                     }
                 }
 
@@ -126,6 +138,17 @@ publishing {
                     connection = "scm:git:git://github.com/embulk/embulk-util-dynamic.git"
                     developerConnection = "scm:git:git@github.com:embulk/embulk-util-dynamic.git"
                     url = "https://github.com/embulk/embulk-util-dynamic"
+                }
+
+                withXml {
+                    project.configurations.compileOnly.allDependencies.each { dependency ->
+                        asNode().dependencies[0].appendNode("dependency").with {
+                            it.appendNode("groupId", dependency.group)
+                            it.appendNode("artifactId", dependency.name)
+                            it.appendNode("version", dependency.version)
+                            it.appendNode("scope", "provided")
+                        }
+                    }
                 }
             }
         }
