@@ -19,7 +19,7 @@ package org.embulk.util.dynamic;
 import java.time.Instant;
 import org.embulk.spi.Column;
 import org.embulk.spi.PageBuilder;
-import org.msgpack.value.Value;
+import org.embulk.spi.json.JsonValue;
 
 public class DoubleColumnSetter extends AbstractDynamicColumnSetter {
     public DoubleColumnSetter(
@@ -69,7 +69,7 @@ public class DoubleColumnSetter extends AbstractDynamicColumnSetter {
     }
 
     @Override
-    public void set(final Value v) {
+    public void set(final JsonValue v) {
         this.defaultValueSetter.setDouble(this.pageBuilder, this.column);
     }
 }

@@ -17,7 +17,7 @@
 package org.embulk.util.dynamic;
 
 import java.time.Instant;
-import org.msgpack.value.Value;
+import org.embulk.spi.json.JsonValue;
 
 public class SkipColumnSetter extends AbstractDynamicColumnSetter {
     private SkipColumnSetter() {
@@ -47,7 +47,7 @@ public class SkipColumnSetter extends AbstractDynamicColumnSetter {
     public void set(final Instant v) {}
 
     @Override
-    public void set(final Value v) {}
+    public void set(final JsonValue v) {}
 
     private static final SkipColumnSetter instance = new SkipColumnSetter();
 }

@@ -17,7 +17,7 @@
 package org.embulk.util.dynamic;
 
 import java.time.Instant;
-import org.msgpack.value.Value;
+import org.embulk.spi.json.JsonValue;
 
 public interface DynamicColumnSetter {
     void setNull();
@@ -32,5 +32,5 @@ public interface DynamicColumnSetter {
 
     void set(Instant value);
 
-    void set(Value value);
+    void set(JsonValue value);
 }

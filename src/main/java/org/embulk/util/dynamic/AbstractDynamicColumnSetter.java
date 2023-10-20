@@ -19,7 +19,7 @@ package org.embulk.util.dynamic;
 import java.time.Instant;
 import org.embulk.spi.Column;
 import org.embulk.spi.PageBuilder;
-import org.msgpack.value.Value;
+import org.embulk.spi.json.JsonValue;
 
 public abstract class AbstractDynamicColumnSetter implements DynamicColumnSetter {
     protected AbstractDynamicColumnSetter(
@@ -50,7 +50,7 @@ public abstract class AbstractDynamicColumnSetter implements DynamicColumnSetter
     public abstract void set(Instant value);
 
     @Override
-    public abstract void set(Value value);
+    public abstract void set(JsonValue value);
 
     protected final PageBuilder pageBuilder;
     protected final Column column;

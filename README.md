@@ -3,6 +3,16 @@ embulk-util-dynamic
 
 A clone of [`embulk-core`'s `org.embulk.spi.util.Dynamic*` classes](https://github.com/embulk/embulk/blob/v0.10.30/embulk-core/src/main/java/org/embulk/spi/util/DynamicPageBuilder.java) to do the same job on Embulk plugin's side.
 
+Versions
+---------
+
+Note that v0.1.1 and v0.2.0 are incompatible.
+
+| embulk-util-dynamic | Embulk |
+| ---- | ---- |
+| v0.1.1 | It will stop working during Embulk v1.0 for the removal of `msgpack-java`. |
+| v0.2.0 | It works only after Embulk v0.10.42. |
+
 For Embulk plugin developers
 -----------------------------
 
