@@ -16,7 +16,7 @@ Note that v0.1.1 and v0.2.0 are incompatible.
 For Embulk plugin developers
 -----------------------------
 
-* [Javadoc](https://dev.embulk.org/embulk-util-csv/)
+* [Javadoc](https://dev.embulk.org/embulk-util-dynamic/)
 
 For Maintainers
 ----------------
