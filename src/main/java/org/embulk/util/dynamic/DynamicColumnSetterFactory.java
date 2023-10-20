@@ -29,6 +29,8 @@ import org.embulk.spi.type.StringType;
 import org.embulk.spi.type.TimestampType;
 import org.embulk.spi.type.Type;
 import org.embulk.util.timestamp.TimestampFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class DynamicColumnSetterFactory {
     private DynamicColumnSetterFactory(
@@ -79,7 +81,7 @@ class DynamicColumnSetterFactory {
             if (this.useColumnForTimestampMetadata) {
                 final TimestampType timestampType = (TimestampType) type;
                 // TODO: Remove use of TimestampType's format. See: https://github.com/embulk/embulk/issues/935
-                parser = TimestampFormatter.builder(getFormatFromTimestampTypeWithDepracationSuppressed(timestampType), true)
+                parser = TimestampFormatter.builder(getFormatFromTimestampTypeWithDepracationSuppressed(timestampType, column), true)
                         .setDefaultZoneFromString(getTimeZoneId(column))
                         .build();
             } else {
@@ -123,9 +125,27 @@ class DynamicColumnSetterFactory {
 
     // TODO: Stop using TimestampType.getFormat.
     @SuppressWarnings("deprecation")  // https://github.com/embulk/embulk/issues/935
-    private String getFormatFromTimestampTypeWithDepracationSuppressed(final TimestampType timestampType) {
-        return timestampType.getFormat();
+    private String getFormatFromTimestampTypeWithDepracationSuppressed(final TimestampType timestampType, final Column column) {
+        try {
+            return timestampType.getFormat();
+        } catch (final NoSuchMethodError ex) {
+            final ConfigSource option = this.columnOptions.get(column.getName());
+            if (option == null) {
+                final String format = "%Y-%m-%d %H:%M:%S.%6N %z";
+                logger.warn("Using the default timestamp format \"{}\" "
+                            + "because org.embulk.spi.type.TimestampType#getFormat() is not found. "
+                            + "(Expected to be removed for deprecation)", format, ex);
+                return format;
+            }
+            final String format = option.get(String.class, "timestamp_format", "%Y-%m-%d %H:%M:%S.%6N %z");
+            logger.warn("Using the timestamp format \"{}\" from column \"{}\" "
+                        + "because org.embulk.spi.type.TimestampType#getFormat() is not found. "
+                        + "(Expected to be removed for deprecation)", format, column.getName(), ex);
+            return format;
+        }
     }
+
+    private static final Logger logger = LoggerFactory.getLogger(DynamicColumnSetterFactory.class);
 
     private final String defaultZoneString;
     private final Map<String, ConfigSource> columnOptions;
