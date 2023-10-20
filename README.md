@@ -6,12 +6,12 @@ A clone of [`embulk-core`'s `org.embulk.spi.util.Dynamic*` classes](https://gith
 Versions
 ---------
 
-Note that v0.1.1 and v0.2.0 are incompatible.
+Note that v0.1.1 and v0.2.0-v0.2.1 are incompatible.
 
 | embulk-util-dynamic | Embulk |
 | ---- | ---- |
 | v0.1.1 | It will stop working during Embulk v1.0 for the removal of `msgpack-java`. |
-| v0.2.0 | It works only after Embulk v0.10.42. |
+| v0.2.0, v0.2.1 | It works only after Embulk v0.10.42. |
 
 For Embulk plugin developers
 -----------------------------
