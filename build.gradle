@@ -11,7 +11,7 @@ repositories {
 }
 
 group = "org.embulk"
-version = "0.2.1-SNAPSHOT"
+version = "0.2.1"
 description = "Embulk dynamic column setter for Embulk plugins"
 
 configurations {
